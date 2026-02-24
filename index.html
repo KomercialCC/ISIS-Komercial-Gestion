@@ -1,19 +1,114 @@
-const url = "https://script.google.com/a/macros/komercialcc.com/s/AKfycby9ReZuHmd45wScKG4IMEeNEvPlgb3wOMyeqnAdwfM_ZDL8kdHmFJcy2DmGB0JE2WQH/exec";
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISIS API — GitHub Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <style>
+    /* Pega aquí TODO el bloque de <style> que ya tenías en tu Index original */
+    /* (Para no alargar este mensaje, asumo que mantienes tu CSS original que está melo) */
+    :root { --b500: #3b82f6; --b700: #1d4ed8; }
+    /* ... tus estilos ... */
+  </style>
+</head>
+<body>
 
-async function enviarDatos(datos) {
+<div id="login-view">
+  <div class="login-left">
+    <div class="login-logo">
+      <div class="login-logo-icon"><i class="fa-solid fa-eye"></i></div>
+      <span>ISIS API (External)</span>
+    </div>
+    <h1 class="login-headline">Acceso Seguro</h1>
+    <input type="email" id="login-email" class="login-input" placeholder="usuario@oikos.com.co">
+    <button class="login-btn" id="btn-login" onclick="handleLogin()">Ingresar al Sistema</button>
+    <p id="login-status" class="login-status"></p>
+  </div>
+  </div>
+
+<div id="main-app" class="hidden">
+    </div>
+
+<script>
+/* ══════════════════════════════════════
+   LOGICA DE CONEXIÓN PROXY (NUEVA)
+══════════════════════════════════════ */
+const PROXY_URL = "https://script.google.com/macros/s/AKfycbz0SdUV160yyQwiK6cbb7cfFZNR-TY2bslRF1HDVa0zOgnifZRz4aTfjJ0cjdwD2_dWOg/exec";
+
+// Función maestra para hablar con Google desde GitHub
+async function ejecutarEnGoogle(accion, datos) {
     try {
-        const response = await fetch(url, {
-            method: 'POST', // O GET según como lo programaste
-            mode: 'no-cors', // <--- ESTO ES VITAL para evitar el bloqueo de CORS
-            cache: 'no-cache',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(datos)
+        // Usamos un formulario oculto o fetch con text/plain para saltar CORS
+        const response = await fetch(PROXY_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Crucial para Google Scripts externos
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({ action: accion, data: datos })
         });
         
-        console.log("Datos enviados, ñero");
-    } catch (error) {
-        console.error("Fallo la vuelta:", error);
+        // Con no-cors no podemos leer response.json()
+        // Por lo tanto, para el LOGIN, vamos a simular la entrada exitosa 
+        // asumiendo que el usuario es válido si el fetch no falla, 
+        // O podrías habilitar un redirect.
+        return { success: true }; 
+    } catch (e) {
+        console.error("Error Proxy:", e);
+        return { success: false, error: e.toString() };
     }
 }
+
+/* ══════════════════════════════════════
+   ADAPTACIÓN DE TUS FUNCIONES
+══════════════════════════════════════ */
+
+async function handleLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const statusEl = document.getElementById('login-status');
+    
+    if(!email) { statusEl.textContent = 'Ingresa un correo'; return; }
+    
+    statusEl.textContent = 'Conectando con ISIS API...';
+    document.getElementById('btn-login').disabled = true;
+
+    // Llamamos al proxy
+    const res = await ejecutarEnGoogle('login', { email: email });
+
+    if(res.success) {
+        // Como no podemos leer la data de vuelta por el CORS, 
+        // aquí te recomiendo una de dos:
+        // 1. Si es para uso interno, deja pasar al usuario.
+        // 2. Si necesitas la data real, tendrías que usar JSONP (más complejo).
+        
+        // Simulamos la carga de la App
+        userEmail = email;
+        document.getElementById('login-view').classList.add('hidden');
+        document.getElementById('main-app').classList.remove('hidden');
+        document.getElementById('tb-em').textContent = email;
+        
+        // Nota: Para que el árbol cargue datos reales, 
+        // necesitarías que el Proxy devuelva un JSONP o usar una API intermedia.
+        // Por ahora, inicializamos el árbol vacío o con datos de prueba:
+        inicializarAppBase();
+    } else {
+        statusEl.textContent = 'Error de acceso';
+        document.getElementById('btn-login').disabled = false;
+    }
+}
+
+function inicializarAppBase() {
+    console.log("App cargada desde GitHub");
+    // Aquí invocas tus funciones de renderizado de círculos y nodos
+    // buildTree(); 
+}
+
+/* Pega aquí el RESTO de tu JavaScript original (el del canvas, el del buscador, etc.) */
+/* Solo asegúrate de cambiar cualquier "google.script.run" por "ejecutarEnGoogle" */
+
+</script>
+</body>
+</html>
