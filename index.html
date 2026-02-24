@@ -1,0 +1,19 @@
+const url = "https://script.google.com/a/macros/komercialcc.com/s/AKfycby9ReZuHmd45wScKG4IMEeNEvPlgb3wOMyeqnAdwfM_ZDL8kdHmFJcy2DmGB0JE2WQH/exec";
+
+async function enviarDatos(datos) {
+    try {
+        const response = await fetch(url, {
+            method: 'POST', // O GET según como lo programaste
+            mode: 'no-cors', // <--- ESTO ES VITAL para evitar el bloqueo de CORS
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(datos)
+        });
+        
+        console.log("Datos enviados, ñero");
+    } catch (error) {
+        console.error("Fallo la vuelta:", error);
+    }
+}
